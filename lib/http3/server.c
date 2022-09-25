@@ -1323,6 +1323,13 @@ static int handle_input_expect_headers(struct st_h2o_http3_server_stream_t *stre
         }
     }
 
+    if (memchr(stream->req.input.path.base, '?', stream->req.input.path.len) != NULL) {
+        char* pri = &stream->req.input.path.base[stream->req.input.path.len - 1];
+        fprintf(stderr, "Setting priority from query string: %s\n", pri);
+        stream->scheduler.priority.urgency = pri[0] - '0';
+        stream->scheduler.priority.incremental = 0;
+    }
+
     /* special handling of CONNECT method */
     if (is_connect) {
         return handle_input_expect_headers_process_connect(stream, NULL, err_desc);
